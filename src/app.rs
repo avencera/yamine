@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    io::{BufReader, Read, Write},
+    io::{self, BufReader, Read, Write},
     path::{Path, PathBuf},
 };
 
@@ -8,6 +8,7 @@ use eyre::Result;
 use ignore::WalkBuilder;
 use itertools::Itertools;
 use log::debug;
+use serde_yaml::Value;
 
 use crate::{CliArgs, Format};
 
@@ -44,13 +45,41 @@ impl App {
                 write_mode: WriteMode::Write,
                 format: Format::Yaml,
                 ..
-            } => self.write_to_yaml()?,
+            } => {
+                let file = File::create(&self.output)?;
+                self.write_to_yaml(file)?
+            }
 
             Self {
                 write_mode: WriteMode::Write,
                 format: Format::Json,
                 ..
-            } => self.write_to_json()?,
+            } => {
+                let file = File::create(&self.output)?;
+                self.write_to_json(file)?
+            }
+
+            Self {
+                write_mode: WriteMode::StdOut,
+                format: Format::Yaml,
+                ..
+            } => {
+                let stdout = io::stdout();
+                let handle = stdout.lock();
+
+                self.write_to_yaml(handle)?
+            }
+
+            Self {
+                write_mode: WriteMode::StdOut,
+                format: Format::Json,
+                ..
+            } => {
+                let stdout = io::stdout();
+                let handle = stdout.lock();
+
+                self.write_to_json(handle)?
+            }
 
             _ => (),
         };
@@ -58,9 +87,8 @@ impl App {
         Ok(())
     }
 
-    fn write_to_json(&self) -> Result<()> {
         let yamls_iter = self.get_yamls_iter();
-        let mut output = File::create(&self.output)?;
+    fn write_to_json<T: Write>(&self, mut output: T) -> Result<()> {
         output.write_all(b"[")?;
 
         for yaml_value in yamls_iter {
@@ -75,11 +103,8 @@ impl App {
         Ok(())
     }
 
-    fn write_to_yaml(&self) -> Result<()> {
-        let yamls_iter = self.get_yamls_iter();
-        let mut output = File::create(&self.output)?;
-
-        for yaml_value in yamls_iter {
+    fn write_to_yaml<T: Write>(&self, mut output: T) -> Result<()> {
+        for yaml_value in self.get_yamls_iter() {
             let yaml_bytes = serde_yaml::to_vec(&yaml_value)?;
             output.write_all(&yaml_bytes)?;
         }
@@ -89,7 +114,7 @@ impl App {
         Ok(())
     }
 
-    fn get_yamls_iter(&self) -> impl Iterator<Item = serde_yaml::Value> + '_ {
+    fn get_yamls_iter(&self) -> impl Iterator<Item = Value> + '_ {
         self.files
             .iter()
             .map(|path| convert_to_yaml(path))
@@ -98,7 +123,7 @@ impl App {
     }
 }
 
-fn convert_to_yaml(path: &Path) -> Result<Vec<serde_yaml::Value>> {
+fn convert_to_yaml(path: &Path) -> Result<Vec<Value>> {
     let file = File::open(path)?;
     let mut reader = BufReader::new(file);
     let mut yamls = Vec::new();
