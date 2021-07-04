@@ -1,5 +1,10 @@
-use std::path::{Path, PathBuf};
+use std::{
+    fs::File,
+    io::{BufReader, Read, Write},
+    path::{Path, PathBuf},
+};
 
+use eyre::Result;
 use ignore::WalkBuilder;
 use itertools::Itertools;
 
@@ -13,7 +18,7 @@ enum WriteMode {
 }
 
 #[derive(Debug)]
-struct App {
+pub(crate) struct App {
     files: Vec<PathBuf>,
     write_mode: WriteMode,
     output: String,
@@ -21,13 +26,46 @@ struct App {
 }
 
 impl App {
-    fn new(args: CliArgs) -> Self {
+    pub(crate) fn new(args: CliArgs) -> Self {
         Self {
             files: get_all_files(&args),
             write_mode: get_write_mode(&args),
             output: args.output,
             format: args.format,
         }
+    }
+
+    pub(crate) fn run(self) -> Result<()> {
+        let mut output = File::create(&self.output)?;
+
+        for yaml_bytes in self
+            .files
+            .iter()
+            .map(|path| self.convert_to_yaml(path))
+            .flatten()
+            .map(|yaml| serde_yaml::to_vec(&yaml))
+            .flatten()
+        {
+            output.write_all(b"---")?;
+            output.write_all(&yaml_bytes)?;
+        }
+
+        output.flush()?;
+
+        Ok(())
+    }
+
+    fn convert_to_yaml(&self, path: &Path) -> Result<serde_yaml::Value> {
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+
+        let yaml = if path.ends_with(".yaml") {
+            serde_yaml::from_reader(reader)?
+        } else {
+            serde_json::from_reader(reader)?
+        };
+
+        Ok(yaml)
     }
 }
 
@@ -51,6 +89,7 @@ fn get_all_files(args: &CliArgs) -> Vec<PathBuf> {
                 .max_depth(Some(args.depth))
                 .build()
                 .filter_map(Result::ok)
+                .filter(|f| f.path().ends_with(".json") || f.path().ends_with(".yaml"))
                 .filter(|f| f.path().is_file())
                 .map(|file| file.path().to_owned())
         })

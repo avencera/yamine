@@ -1,8 +1,9 @@
-use std::{fmt::Display, str::FromStr};
-
-use eyre::Result;
-use structopt::{clap::AppSettings, StructOpt};
 mod app;
+
+use app::App;
+use eyre::Result;
+use std::{fmt::Display, str::FromStr};
+use structopt::{clap::AppSettings, StructOpt};
 
 #[derive(Debug)]
 pub enum Format {
@@ -91,7 +92,9 @@ fn main() -> Result<()> {
     color_eyre::install()?;
 
     let args = CliArgs::from_args();
+    
+    let app = App::new(args);
+    app.run()?;
 
-    println!("{:#?}", args);
     Ok(())
 }
