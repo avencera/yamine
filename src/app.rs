@@ -38,15 +38,48 @@ impl App {
 
     pub(crate) fn run(self) -> Result<()> {
         debug!("running {:#?}", &self);
+
+        match self {
+            Self {
+                write_mode: WriteMode::Write,
+                format: Format::Yaml,
+                ..
+            } => self.write_to_yaml()?,
+
+            Self {
+                write_mode: WriteMode::Write,
+                format: Format::Json,
+                ..
+            } => self.write_to_json()?,
+
+            _ => (),
+        };
+
+        Ok(())
+    }
+
+    fn write_to_json(&self) -> Result<()> {
+        let yamls_iter = self.get_yamls_iter();
+        let mut output = File::create(&self.output)?;
+        output.write_all(b"[")?;
+
+        for yaml_value in yamls_iter {
+            let json_bytes = serde_json::to_vec(&yaml_value)?;
+            output.write_all(&json_bytes)?;
+            output.write_all(b",")?;
+        }
+
+        output.write_all(b"]")?;
+        output.flush()?;
+
+        Ok(())
+    }
+
+    fn write_to_yaml(&self) -> Result<()> {
+        let yamls_iter = self.get_yamls_iter();
         let mut output = File::create(&self.output)?;
 
-        for yaml_value in self
-            .files
-            .iter()
-            .map(|path| self.convert_to_yaml(path))
-            .flatten()
-            .flatten()
-        {
+        for yaml_value in yamls_iter {
             let yaml_bytes = serde_yaml::to_vec(&yaml_value)?;
             output.write_all(&yaml_bytes)?;
         }
@@ -56,25 +89,33 @@ impl App {
         Ok(())
     }
 
-    fn convert_to_yaml(&self, path: &Path) -> Result<Vec<serde_yaml::Value>> {
-        let file = File::open(path)?;
-        let mut reader = BufReader::new(file);
-        let mut yamls = Vec::new();
-
-        match path.extension().and_then(|path| path.to_str()) {
-            Some("yaml") => {
-                let mut yaml_string = String::new();
-                reader.read_to_string(&mut yaml_string)?;
-
-                for yaml_str in yaml_string.split("---") {
-                    yamls.push(serde_yaml::from_str(yaml_str)?)
-                }
-            }
-            _ => yamls.push(serde_json::from_reader(reader)?),
-        };
-
-        Ok(yamls)
+    fn get_yamls_iter(&self) -> impl Iterator<Item = serde_yaml::Value> + '_ {
+        self.files
+            .iter()
+            .map(|path| convert_to_yaml(path))
+            .flatten()
+            .flatten()
     }
+}
+
+fn convert_to_yaml(path: &Path) -> Result<Vec<serde_yaml::Value>> {
+    let file = File::open(path)?;
+    let mut reader = BufReader::new(file);
+    let mut yamls = Vec::new();
+
+    match path.extension().and_then(|path| path.to_str()) {
+        Some("yaml") => {
+            let mut yaml_string = String::new();
+            reader.read_to_string(&mut yaml_string)?;
+
+            for yaml_str in yaml_string.split("---") {
+                yamls.push(serde_yaml::from_str(yaml_str)?)
+            }
+        }
+        _ => yamls.push(serde_json::from_reader(reader)?),
+    };
+
+    Ok(yamls)
 }
 
 fn get_write_mode(args: &CliArgs) -> WriteMode {
