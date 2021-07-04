@@ -2,9 +2,10 @@ use std::{fmt::Display, str::FromStr};
 
 use eyre::Result;
 use structopt::{clap::AppSettings, StructOpt};
+mod app;
 
 #[derive(Debug)]
-enum Format {
+pub enum Format {
     Yaml,
     Json,
     K8sJson,
@@ -42,14 +43,22 @@ impl Display for Format {
 /// Combine JSON/YAML files into a single YAML file
 #[derive(Debug, StructOpt)]
 #[structopt(name("yamine"), global_settings = &[AppSettings::ColoredHelp, AppSettings::ArgRequiredElseHelp])]
-struct CliArgs {
+pub(crate) struct CliArgs {
     #[structopt(
         name = "FILES_OR_FOLDERS",
         help = "file(s) or folder you want to run in",
         min_values = 1,
         required = true
     )]
-    file: Vec<String>,
+    pub(crate) files: Vec<String>,
+
+    #[structopt(
+        long,
+        short,
+        default_value = "1",
+        help = "number of folder depth to recurse into"
+    )]
+    pub(crate) depth: usize,
 
     #[structopt(
         default_value = "combined.yaml",
@@ -57,16 +66,16 @@ struct CliArgs {
         long,
         help = "output file name"
     )]
-    output: String,
+    pub(crate) output: String,
 
-    #[structopt(long, short, help = "default mode")]
-    dry_run: bool,
+    #[structopt(long, help = "default mode")]
+    pub(crate) dry_run: bool,
 
     #[structopt(long, short, help = "write new output file")]
-    write: bool,
+    pub(crate) write: bool,
 
     #[structopt(long, short, help = "outputs combined file contents to STDOUT")]
-    std_out: bool,
+    pub(crate) std_out: bool,
 
     #[structopt(
         long,
@@ -74,7 +83,7 @@ struct CliArgs {
         default_value,
         help = "the format for the output file, defaults to yaml, options are: 'yaml', 'json', 'k8s-json'"
     )]
-    format: Format,
+    pub(crate) format: Format,
 }
 
 fn main() -> Result<()> {

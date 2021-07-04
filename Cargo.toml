@@ -16,3 +16,9 @@ log = "0.4"
 
 # cli
 structopt = "0.3"
+
+# file system
+ignore = "0.4"
+
+# utils
+itertools = "0.10"
