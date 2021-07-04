@@ -40,49 +40,30 @@ impl App {
     pub(crate) fn run(self) -> Result<()> {
         debug!("running {:#?}", &self);
 
-        match self {
-            Self {
-                write_mode: WriteMode::Write,
-                format: Format::Yaml,
-                ..
-            } => {
-                let file = File::create(&self.output)?;
-                self.write_to_yaml(file)?
+        match &self.write_mode {
+            &WriteMode::Write => {
+                let writable_output = File::create(&self.output)?;
+                self.write_to_format(writable_output)?;
             }
 
-            Self {
-                write_mode: WriteMode::Write,
-                format: Format::Json,
-                ..
-            } => {
-                let file = File::create(&self.output)?;
-                self.write_to_json(file)?
-            }
-
-            Self {
-                write_mode: WriteMode::StdOut,
-                format: Format::Yaml,
-                ..
-            } => {
+            &WriteMode::StdOut => {
                 let stdout = io::stdout();
-                let handle = stdout.lock();
-
-                self.write_to_yaml(handle)?
-            }
-
-            Self {
-                write_mode: WriteMode::StdOut,
-                format: Format::Json,
-                ..
-            } => {
-                let stdout = io::stdout();
-                let handle = stdout.lock();
-
-                self.write_to_json(handle)?
+                let writable_output = stdout.lock();
+                self.write_to_format(writable_output)?;
             }
 
             _ => (),
         };
+
+        Ok(())
+    }
+
+    fn write_to_format<T: Write>(&self, output: T) -> Result<()> {
+        match self.format {
+            Format::Yaml => self.write_to_yaml(output)?,
+            Format::Json => self.write_to_json(output)?,
+            Format::K8sJson => {}
+        }
 
         Ok(())
     }
