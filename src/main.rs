@@ -9,8 +9,8 @@ use structopt::{clap::AppSettings, StructOpt};
 #[derive(Debug)]
 pub enum Format {
     Yaml,
-    Json,
-    K8sJson,
+    JsonArray,
+    JsonK8s,
 }
 
 impl Default for Format {
@@ -24,9 +24,11 @@ impl FromStr for Format {
     fn from_str(string: &str) -> Result<Self, Self::Err> {
         match string.to_lowercase().as_ref() {
             "yaml" => Ok(Self::Yaml),
-            "json" => Ok(Self::Json),
-            "k8s-json" => Ok(Self::K8sJson),
-            "kubernetes-json" => Ok(Self::K8sJson),
+            "json-array" => Ok(Self::JsonArray),
+            "k8s-json" => Ok(Self::JsonK8s),
+            "kubernetes-json" => Ok(Self::JsonK8s),
+            "json-k8s" => Ok(Self::JsonK8s),
+            "json-kubernetes" => Ok(Self::JsonK8s),
             _ => Ok(Self::Yaml),
         }
     }
@@ -36,8 +38,8 @@ impl Display for Format {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Yaml => write!(f, "yaml"),
-            Self::Json => write!(f, "json"),
-            Self::K8sJson => write!(f, "k8s-json"),
+            Self::JsonArray => write!(f, "json-array"),
+            Self::JsonK8s => write!(f, "json-k8s"),
         }
     }
 }

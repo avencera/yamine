@@ -41,12 +41,12 @@ impl App {
         debug!("running {:#?}", &self);
 
         match &self.write_mode {
-            &WriteMode::Write => {
+            WriteMode::Write => {
                 let writable_output = File::create(&self.output)?;
                 self.write_to_format(writable_output)?;
             }
 
-            &WriteMode::StdOut => {
+            WriteMode::StdOut => {
                 let stdout = io::stdout();
                 let writable_output = stdout.lock();
                 self.write_to_format(writable_output)?;
@@ -61,8 +61,8 @@ impl App {
     fn write_to_format<T: Write>(&self, output: T) -> Result<()> {
         match self.format {
             Format::Yaml => self.write_to_yaml(output)?,
-            Format::Json => self.write_to_json(output)?,
-            Format::K8sJson => {}
+            Format::JsonArray => self.write_to_json(output)?,
+            Format::JsonK8s => {}
         }
 
         Ok(())
