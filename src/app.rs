@@ -7,6 +7,7 @@ use std::{
 use eyre::Result;
 use ignore::WalkBuilder;
 use itertools::Itertools;
+use log::debug;
 
 use crate::{CliArgs, Format};
 
@@ -36,17 +37,17 @@ impl App {
     }
 
     pub(crate) fn run(self) -> Result<()> {
+        debug!("running {:#?}", &self);
         let mut output = File::create(&self.output)?;
 
-        for yaml_bytes in self
+        for yaml_value in self
             .files
             .iter()
             .map(|path| self.convert_to_yaml(path))
             .flatten()
-            .map(|yaml| serde_yaml::to_vec(&yaml))
             .flatten()
         {
-            output.write_all(b"---")?;
+            let yaml_bytes = serde_yaml::to_vec(&yaml_value)?;
             output.write_all(&yaml_bytes)?;
         }
 
@@ -55,17 +56,24 @@ impl App {
         Ok(())
     }
 
-    fn convert_to_yaml(&self, path: &Path) -> Result<serde_yaml::Value> {
+    fn convert_to_yaml(&self, path: &Path) -> Result<Vec<serde_yaml::Value>> {
         let file = File::open(path)?;
-        let reader = BufReader::new(file);
+        let mut reader = BufReader::new(file);
+        let mut yamls = Vec::new();
 
-        let yaml = if path.ends_with(".yaml") {
-            serde_yaml::from_reader(reader)?
-        } else {
-            serde_json::from_reader(reader)?
+        match path.extension().and_then(|path| path.to_str()) {
+            Some("yaml") => {
+                let mut yaml_string = String::new();
+                reader.read_to_string(&mut yaml_string)?;
+
+                for yaml_str in yaml_string.split("---") {
+                    yamls.push(serde_yaml::from_str(yaml_str)?)
+                }
+            }
+            _ => yamls.push(serde_json::from_reader(reader)?),
         };
 
-        Ok(yaml)
+        Ok(yamls)
     }
 }
 
@@ -86,11 +94,15 @@ fn get_all_files(args: &CliArgs) -> Vec<PathBuf> {
         .map(|path| Path::new(path).to_owned())
         .flat_map(|starting_path| {
             WalkBuilder::new(starting_path)
-                .max_depth(Some(args.depth))
                 .build()
                 .filter_map(Result::ok)
-                .filter(|f| f.path().ends_with(".json") || f.path().ends_with(".yaml"))
                 .filter(|f| f.path().is_file())
+                .filter(|f| {
+                    matches!(
+                        f.path().extension().and_then(|path| path.to_str()),
+                        Some("yaml" | "json")
+                    )
+                })
                 .map(|file| file.path().to_owned())
         })
         .unique()

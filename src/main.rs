@@ -2,6 +2,7 @@ mod app;
 
 use app::App;
 use eyre::Result;
+use log::{error, info};
 use std::{fmt::Display, str::FromStr};
 use structopt::{clap::AppSettings, StructOpt};
 
@@ -92,9 +93,13 @@ fn main() -> Result<()> {
     color_eyre::install()?;
 
     let args = CliArgs::from_args();
-    
+
     let app = App::new(args);
-    app.run()?;
+
+    match app.run() {
+        Ok(_) => info!("Ran successfully"),
+        Err(error) => error!("Unable to combine files: {:?}", error),
+    }
 
     Ok(())
 }
