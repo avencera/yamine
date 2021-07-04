@@ -87,14 +87,17 @@ impl App {
         Ok(())
     }
 
-        let yamls_iter = self.get_yamls_iter();
     fn write_to_json<T: Write>(&self, mut output: T) -> Result<()> {
         output.write_all(b"[")?;
 
-        for yaml_value in yamls_iter {
+        for (index, yaml_value) in self.get_yamls_iter().enumerate() {
             let json_bytes = serde_json::to_vec(&yaml_value)?;
+
+            if index != 0 {
+                output.write_all(b",")?;
+            }
+
             output.write_all(&json_bytes)?;
-            output.write_all(b",")?;
         }
 
         output.write_all(b"]")?;
