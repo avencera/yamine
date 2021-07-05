@@ -10,13 +10,26 @@ use itertools::Itertools;
 use log::debug;
 use serde_yaml::Value;
 
-use crate::{CliArgs, Format};
+use crate::CliArgs;
 
 #[derive(Debug)]
 enum WriteMode {
     Write,
     StdOut,
     DryRun,
+}
+
+#[derive(Debug)]
+pub enum Format {
+    Yaml,
+    JsonArray,
+    JsonK8s,
+}
+
+impl Default for Format {
+    fn default() -> Self {
+        Self::Yaml
+    }
 }
 
 #[derive(Debug)]
@@ -61,14 +74,25 @@ impl App {
     fn write_to_format<T: Write>(&self, output: T) -> Result<()> {
         match self.format {
             Format::Yaml => self.write_to_yaml(output)?,
-            Format::JsonArray => self.write_to_json(output)?,
-            Format::JsonK8s => {}
+            Format::JsonArray => self.write_to_json_array(output)?,
+            Format::JsonK8s => self.write_to_json_kubernetes(output)?,
         }
 
         Ok(())
     }
 
-    fn write_to_json<T: Write>(&self, mut output: T) -> Result<()> {
+    fn write_to_yaml<T: Write>(&self, mut output: T) -> Result<()> {
+        for yaml_value in self.get_yamls_iter() {
+            let yaml_bytes = serde_yaml::to_vec(&yaml_value)?;
+            output.write_all(&yaml_bytes)?;
+        }
+
+        output.flush()?;
+
+        Ok(())
+    }
+
+    fn write_to_json_array<T: Write>(&self, mut output: T) -> Result<()> {
         output.write_all(b"[")?;
 
         for (index, yaml_value) in self.get_yamls_iter().enumerate() {
@@ -87,12 +111,20 @@ impl App {
         Ok(())
     }
 
-    fn write_to_yaml<T: Write>(&self, mut output: T) -> Result<()> {
-        for yaml_value in self.get_yamls_iter() {
-            let yaml_bytes = serde_yaml::to_vec(&yaml_value)?;
-            output.write_all(&yaml_bytes)?;
+    fn write_to_json_kubernetes<T: Write>(&self, mut output: T) -> Result<()> {
+        output.write_all(br##"{"kind": "List", "apiVersion": "v1", "items": ["##)?;
+
+        for (index, yaml_value) in self.get_yamls_iter().enumerate() {
+            let json_bytes = serde_json::to_vec(&yaml_value)?;
+
+            if index != 0 {
+                output.write_all(b",")?;
+            }
+
+            output.write_all(&json_bytes)?;
         }
 
+        output.write_all(b"]}")?;
         output.flush()?;
 
         Ok(())

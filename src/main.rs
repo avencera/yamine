@@ -1,21 +1,18 @@
 mod app;
 
-use app::App;
+use app::{App, Format};
 use eyre::Result;
 use log::{error, info};
 use std::{fmt::Display, str::FromStr};
 use structopt::{clap::AppSettings, StructOpt};
 
-#[derive(Debug)]
-pub enum Format {
-    Yaml,
-    JsonArray,
-    JsonK8s,
-}
-
-impl Default for Format {
-    fn default() -> Self {
-        Self::Yaml
+impl Display for Format {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Yaml => write!(f, "yaml"),
+            Self::JsonArray => write!(f, "json-array"),
+            Self::JsonK8s => write!(f, "json-k8s"),
+        }
     }
 }
 
@@ -30,16 +27,6 @@ impl FromStr for Format {
             "json-k8s" => Ok(Self::JsonK8s),
             "json-kubernetes" => Ok(Self::JsonK8s),
             _ => Ok(Self::Yaml),
-        }
-    }
-}
-
-impl Display for Format {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Yaml => write!(f, "yaml"),
-            Self::JsonArray => write!(f, "json-array"),
-            Self::JsonK8s => write!(f, "json-k8s"),
         }
     }
 }
