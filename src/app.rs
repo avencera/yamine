@@ -212,6 +212,7 @@ fn get_all_files(args: &CliArgs) -> Vec<PathBuf> {
         .map(|path| Path::new(path).to_owned())
         .flat_map(|starting_path| {
             WalkBuilder::new(starting_path)
+                .max_depth(Some(args.depth))
                 .build()
                 .filter_map(Result::ok)
                 .filter(|f| f.path().is_file())
