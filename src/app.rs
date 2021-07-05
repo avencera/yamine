@@ -65,8 +65,44 @@ impl App {
                 self.write_to_format(writable_output)?;
             }
 
-            _ => (),
+            WriteMode::DryRun => self.dry_run()?,
         };
+
+        Ok(())
+    }
+
+    fn dry_run(&self) -> Result<()> {
+        use colored::*;
+
+        let files = self
+            .files
+            .iter()
+            .map(|path| format!("  * {}", path.to_string_lossy()))
+            .join("\n");
+
+        indoc::printdoc!(
+            r###"
+
+            Running in `{}` mode.
+            
+            The following files will be combined: 
+
+            {}
+
+            The combined file be created at: {}/{}
+            
+            To create the file run again in write mode using `{}` or `{}`.
+            To output the file to STDOUT use `{}` or `{}`
+            "###,
+            "dry-run".blue(),
+            files.white().dimmed(),
+            std::env::current_dir()?.to_string_lossy().green(),
+            self.output.green(),
+            "--write".green(),
+            "-w".green(),
+            "--std-out".green(),
+            "-s".green()
+        );
 
         Ok(())
     }
