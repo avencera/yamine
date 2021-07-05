@@ -45,7 +45,7 @@ ARGS:
     <FILES_OR_FOLDERS>...    File(s) or folder you want to run in
 ```
 
-### Examples
+## Examples
 
 - Combine all yaml and json files in the current folder and creates `combined.yaml` file
   - `yamine -w .`
@@ -54,29 +54,29 @@ ARGS:
 - Output the combined file to STDOUT in json-array format:
   - `yamine --std-out -f json-array .`
 
-### Formats
+## Formats
 
 - `yaml` - a multi document yaml file separated by `---` (a kubernetes multi resource document)
 
-```yaml
----
-apiVersion: traefik.containo.us/v1alpha1
-kind: IngressRoute
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: example
----
-kind: ServiceAccount
-apiVersion: v1
----
-apiVersion: v1
-kind: Service
----
-apiVersion: apps/v1
-kind: Deployment
-```
+  ```yaml
+  ---
+  apiVersion: traefik.containo.us/v1alpha1
+  kind: IngressRoute
+  ---
+  apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: example
+  ---
+  kind: ServiceAccount
+  apiVersion: v1
+  ---
+  apiVersion: v1
+  kind: Service
+  ---
+  apiVersion: apps/v1
+  kind: Deployment
+  ```
 
 - `json-array` - a json file with each combined file being an element in the array
 
