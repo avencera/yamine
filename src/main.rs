@@ -6,32 +6,7 @@ use log::{error, info};
 use std::{fmt::Display, str::FromStr};
 use structopt::{clap::AppSettings, StructOpt};
 
-impl Display for Format {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Yaml => write!(f, "yaml"),
-            Self::JsonArray => write!(f, "json-array"),
-            Self::JsonK8s => write!(f, "json-k8s"),
-        }
-    }
-}
-
-impl FromStr for Format {
-    type Err = String;
-    fn from_str(string: &str) -> Result<Self, Self::Err> {
-        match string.to_lowercase().as_ref() {
-            "yaml" => Ok(Self::Yaml),
-            "json-array" => Ok(Self::JsonArray),
-            "k8s-json" => Ok(Self::JsonK8s),
-            "kubernetes-json" => Ok(Self::JsonK8s),
-            "json-k8s" => Ok(Self::JsonK8s),
-            "json-kubernetes" => Ok(Self::JsonK8s),
-            _ => Ok(Self::Yaml),
-        }
-    }
-}
-
-/// Combine JSON/YAML files into a single YAML file
+/// Combine JSON/YAML files into a single file
 #[derive(Debug, StructOpt)]
 #[structopt(name("yamine"), global_settings = &[AppSettings::ColoredHelp, AppSettings::ArgRequiredElseHelp])]
 pub(crate) struct CliArgs {
@@ -75,6 +50,37 @@ pub(crate) struct CliArgs {
         help = "The format for the output file, defaults to yaml, options are: 'yaml', 'json', 'k8s-json'"
     )]
     pub(crate) format: Format,
+}
+
+impl Default for Format {
+    fn default() -> Self {
+        Self::Yaml
+    }
+}
+
+impl Display for Format {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Yaml => write!(f, "yaml"),
+            Self::JsonArray => write!(f, "json-array"),
+            Self::JsonK8s => write!(f, "json-k8s"),
+        }
+    }
+}
+
+impl FromStr for Format {
+    type Err = String;
+    fn from_str(string: &str) -> Result<Self, Self::Err> {
+        match string.to_lowercase().as_ref() {
+            "yaml" => Ok(Self::Yaml),
+            "json-array" => Ok(Self::JsonArray),
+            "k8s-json" => Ok(Self::JsonK8s),
+            "kubernetes-json" => Ok(Self::JsonK8s),
+            "json-k8s" => Ok(Self::JsonK8s),
+            "json-kubernetes" => Ok(Self::JsonK8s),
+            _ => Ok(Self::Yaml),
+        }
+    }
 }
 
 fn main() -> Result<()> {

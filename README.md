@@ -23,7 +23,7 @@ Download a release directly from github: [github.com/avencera/yamine/releases](h
 `yamine --help`
 
 ```
-Combine JSON/YAML files into a single YAML file
+Combine JSON/YAML files into a single file
 
 USAGE:
     yamine [FLAGS] [OPTIONS] <FILES_OR_FOLDERS>...

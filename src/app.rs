@@ -26,12 +26,6 @@ pub enum Format {
     JsonK8s,
 }
 
-impl Default for Format {
-    fn default() -> Self {
-        Self::Yaml
-    }
-}
-
 #[derive(Debug)]
 pub(crate) struct App {
     files: Vec<PathBuf>,
