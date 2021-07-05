@@ -44,8 +44,8 @@ jobs:
           - i686-pc-windows-msvc
           - x86_64-pc-windows-msvc
           # GNU
-          - i686-pc-windows-gnu
-          - x86_64-pc-windows-gnu
+          # - i686-pc-windows-gnu
+          # - x86_64-pc-windows-gnu
     steps:
       - name: Get tag
         id: tag
