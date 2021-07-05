@@ -90,6 +90,7 @@ impl App {
             {}
 
             The combined file be created at: {}/{}
+            The combined file will be in `{}` format
             
             To create the file run again in write mode using `{}` or `{}`.
             To output the file to STDOUT use `{}` or `{}`
@@ -98,6 +99,7 @@ impl App {
             files.white().dimmed(),
             std::env::current_dir()?.to_string_lossy().green(),
             self.output.green(),
+            self.format.to_string().green(),
             "--write".green(),
             "-w".green(),
             "--std-out".green(),

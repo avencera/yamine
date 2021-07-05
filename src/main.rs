@@ -37,7 +37,7 @@ impl FromStr for Format {
 pub(crate) struct CliArgs {
     #[structopt(
         name = "FILES_OR_FOLDERS",
-        help = "file(s) or folder you want to run in",
+        help = "File(s) or folder you want to run in",
         min_values = 1,
         required = true
     )]
@@ -47,7 +47,7 @@ pub(crate) struct CliArgs {
         long,
         short,
         default_value = "1",
-        help = "number of folder depth to recurse into"
+        help = "Number of folder depth to recurse into"
     )]
     pub(crate) depth: usize,
 
@@ -55,24 +55,24 @@ pub(crate) struct CliArgs {
         default_value = "combined.yaml",
         short,
         long,
-        help = "output file name"
+        help = "Output file name"
     )]
     pub(crate) output: String,
 
-    #[structopt(long, help = "default mode")]
+    #[structopt(long, help = "Default mode")]
     pub(crate) dry_run: bool,
 
-    #[structopt(long, short, help = "write new output file")]
+    #[structopt(long, short, help = "Write new output file")]
     pub(crate) write: bool,
 
-    #[structopt(long, short, help = "outputs combined file contents to STDOUT")]
+    #[structopt(long, short, help = "Outputs combined file contents to STDOUT")]
     pub(crate) std_out: bool,
 
     #[structopt(
         long,
         short,
         default_value,
-        help = "the format for the output file, defaults to yaml, options are: 'yaml', 'json', 'k8s-json'"
+        help = "The format for the output file, defaults to yaml, options are: 'yaml', 'json', 'k8s-json'"
     )]
     pub(crate) format: Format,
 }
