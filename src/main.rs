@@ -47,7 +47,7 @@ pub(crate) struct CliArgs {
         long,
         short,
         default_value,
-        help = "The format for the output file, defaults to yaml, options are: 'yaml', 'json', 'k8s-json'"
+        help = "The format for the output file, defaults to yaml, options are: 'yaml', 'json-array', 'k8s-json'"
     )]
     pub(crate) format: Format,
 }
@@ -73,6 +73,7 @@ impl FromStr for Format {
     fn from_str(string: &str) -> Result<Self, Self::Err> {
         match string.to_lowercase().as_ref() {
             "yaml" => Ok(Self::Yaml),
+            "json" => Ok(Self::JsonArray),
             "json-array" => Ok(Self::JsonArray),
             "k8s-json" => Ok(Self::JsonK8s),
             "kubernetes-json" => Ok(Self::JsonK8s),
