@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [v0.1.2] - 2021-09-29
+- Upgraded dependencies
+
 ## [v0.1.1] - 2021-09-29
 
 - Fixed help prompt for outputting json
