@@ -165,8 +165,7 @@ impl App {
     fn get_yamls_iter(&self) -> impl Iterator<Item = Value> + '_ {
         self.files
             .iter()
-            .map(|path| convert_to_yaml(path))
-            .flatten()
+            .flat_map(|path| convert_to_yaml(path))
             .flatten()
     }
 }
