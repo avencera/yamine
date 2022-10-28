@@ -25,24 +25,21 @@ Download a release directly from github: [github.com/avencera/yamine/releases](h
 ```
 Combine JSON/YAML files into a single file
 
-USAGE:
-    yamine [FLAGS] [OPTIONS] <FILES_OR_FOLDERS>...
+Usage: yamine [OPTIONS] [FILES_OR_FOLDERS]...
 
-FLAGS:
-        --dry-run    Default mode
-    -h, --help       Prints help information
-    -s, --stdout    Outputs combined file contents to STDOUT
-    -V, --version    Prints version information
-    -w, --write      Write new output file
+Arguments:
+  [FILES_OR_FOLDERS]...  File(s) or folder you want to run in
 
-OPTIONS:
-    -d, --depth <depth>      Number of folder depth to recurse into [default: 1]
-    -f, --format <format>    The format for the output file, defaults to yaml, options are: 'yaml', 'json', 'k8s-json'
-                             [default: yaml]
-    -o, --output <output>    Output file name [default: combined.yaml]
-
-ARGS:
-    <FILES_OR_FOLDERS>...    File(s) or folder you want to run in
+Options:
+  -i, --stdin            Read from STDIN
+  -d, --depth <DEPTH>    Number of folder depth to recurse into [default: 1]
+  -o, --output <OUTPUT>  Output file name [default: combined.yaml]
+      --dry-run          Default mode
+  -w, --write            Write new output file
+  -s, --stdout           Outputs combined file contents to STDOUT
+  -f, --format <FORMAT>  The format for the output file, defaults to yaml, options are: 'yaml', 'json-array', 'k8s-json' [default: yaml]
+  -h, --help             Print help information
+  -V, --version          Print version information
 ```
 
 ## Examples
