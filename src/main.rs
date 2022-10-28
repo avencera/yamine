@@ -13,12 +13,21 @@ pub(crate) struct CliArgs {
     #[arg(
         name = "FILES_OR_FOLDERS",
         help = "File(s) or folder you want to run in",
-        min_values = 1,
-        required = true
+        required_unless_present = "std_in",
+        conflicts_with = "std_in"
     )]
-    pub(crate) files: Vec<String>,
+    pub(crate) files: Option<Vec<String>>,
 
-    #[structopt(
+    #[arg(
+        long = "stdin",
+        short = 'i',
+        help = "Read from STDIN",
+        required_unless_present = "FILES_OR_FOLDERS",
+        conflicts_with = "FILES_OR_FOLDERS"
+    )]
+    pub(crate) std_in: bool,
+
+    #[arg(
         long,
         short,
         default_value = "1",

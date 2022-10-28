@@ -31,7 +31,7 @@ USAGE:
 FLAGS:
         --dry-run    Default mode
     -h, --help       Prints help information
-    -s, --std-out    Outputs combined file contents to STDOUT
+    -s, --stdout    Outputs combined file contents to STDOUT
     -V, --version    Prints version information
     -w, --write      Write new output file
 
@@ -52,7 +52,9 @@ ARGS:
 - Combine all yaml and json files in the current folder and creates a `combined.json` file in `json-k8s` format:
   - `yamine --write --format json-k8s --output combined.json .`
 - Output the combined file to STDOUT in json-array format:
-  - `yamine --std-out -f json-array .`
+  - `yamine --stdout -f json-array .`
+- Convert YAML from stdin and output as JSON to stdout
+  - pbpaste | yamine --stdin --stdout -f json
 
 ## Formats
 
