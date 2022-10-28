@@ -8,7 +8,8 @@ use std::{fmt::Display, str::FromStr};
 
 /// Combine JSON/YAML files into a single file
 #[derive(Debug, Parser)]
-#[command(name("yamine"), arg_required_else_help(true))]
+#[command(author, version, about)]
+#[command(arg_required_else_help(true))]
 pub(crate) struct CliArgs {
     #[arg(
         name = "FILES_OR_FOLDERS",
