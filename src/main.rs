@@ -1,24 +1,33 @@
 mod app;
 
 use app::{App, Format};
+use clap::Parser;
 use eyre::Result;
 use log::{error, info};
 use std::{fmt::Display, str::FromStr};
-use structopt::{clap::AppSettings, StructOpt};
 
 /// Combine JSON/YAML files into a single file
-#[derive(Debug, StructOpt)]
-#[structopt(name("yamine"), global_settings = &[AppSettings::ColoredHelp, AppSettings::ArgRequiredElseHelp])]
+#[derive(Debug, Parser)]
+#[command(name("yamine"), arg_required_else_help(true))]
 pub(crate) struct CliArgs {
-    #[structopt(
+    #[arg(
         name = "FILES_OR_FOLDERS",
         help = "File(s) or folder you want to run in",
-        min_values = 1,
-        required = true
+        required_unless_present = "std_in",
+        conflicts_with = "std_in"
     )]
-    pub(crate) files: Vec<String>,
+    pub(crate) files: Option<Vec<String>>,
 
-    #[structopt(
+    #[arg(
+        long = "stdin",
+        short = 'i',
+        help = "Read from STDIN",
+        required_unless_present = "FILES_OR_FOLDERS",
+        conflicts_with = "FILES_OR_FOLDERS"
+    )]
+    pub(crate) std_in: bool,
+
+    #[arg(
         long,
         short,
         default_value = "1",
@@ -26,7 +35,7 @@ pub(crate) struct CliArgs {
     )]
     pub(crate) depth: usize,
 
-    #[structopt(
+    #[arg(
         default_value = "combined.yaml",
         short,
         long,
@@ -34,19 +43,23 @@ pub(crate) struct CliArgs {
     )]
     pub(crate) output: String,
 
-    #[structopt(long, help = "Default mode")]
+    #[arg(long, help = "Default mode")]
     pub(crate) dry_run: bool,
 
-    #[structopt(long, short, help = "Write new output file")]
+    #[arg(long, short, help = "Write new output file")]
     pub(crate) write: bool,
 
-    #[structopt(long, short, help = "Outputs combined file contents to STDOUT")]
+    #[arg(
+        long = "stdout",
+        short,
+        help = "Outputs combined file contents to STDOUT"
+    )]
     pub(crate) std_out: bool,
 
-    #[structopt(
+    #[arg(
         long,
         short,
-        default_value,
+        default_value = "yaml",
         help = "The format for the output file, defaults to yaml, options are: 'yaml', 'json-array', 'k8s-json'"
     )]
     pub(crate) format: Format,
@@ -88,7 +101,7 @@ fn main() -> Result<()> {
     env_logger::init();
     color_eyre::install()?;
 
-    let args = CliArgs::from_args();
+    let args = CliArgs::parse();
 
     let app = App::new(args);
 

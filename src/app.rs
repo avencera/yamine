@@ -19,7 +19,7 @@ enum WriteMode {
     DryRun,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Format {
     Yaml,
     JsonArray,
@@ -28,7 +28,7 @@ pub enum Format {
 
 #[derive(Debug)]
 pub(crate) struct App {
-    files: Vec<PathBuf>,
+    files: Option<Vec<PathBuf>>,
     write_mode: WriteMode,
     output: String,
     format: Format,
@@ -71,6 +71,7 @@ impl App {
         let files = self
             .files
             .iter()
+            .flatten()
             .map(|path| format!("  * {}", path.to_string_lossy()))
             .join("\n");
 
@@ -96,7 +97,7 @@ impl App {
             self.format.to_string().green(),
             "--write".green(),
             "-w".green(),
-            "--std-out".green(),
+            "--stdout".green(),
             "-s".green()
         );
 
@@ -115,8 +116,7 @@ impl App {
 
     fn write_to_yaml<T: Write>(&self, mut output: T) -> Result<()> {
         for yaml_value in self.get_yamls_iter() {
-            let yaml_bytes = serde_yaml::to_vec(&yaml_value)?;
-            output.write_all(&yaml_bytes)?;
+            serde_yaml::to_writer(&mut output, &yaml_value)?;
         }
 
         output.flush()?;
@@ -127,7 +127,7 @@ impl App {
     fn write_to_json_array<T: Write>(&self, mut output: T) -> Result<()> {
         output.write_all(b"[")?;
 
-        for (index, yaml_value) in self.get_yamls_iter().enumerate() {
+        for (index, yaml_value) in self.get_yamls_iter().iter().enumerate() {
             let json_bytes = serde_json::to_vec(&yaml_value)?;
 
             if index != 0 {
@@ -146,7 +146,7 @@ impl App {
     fn write_to_json_kubernetes<T: Write>(&self, mut output: T) -> Result<()> {
         output.write_all(br##"{"kind": "List", "apiVersion": "v1", "items": ["##)?;
 
-        for (index, yaml_value) in self.get_yamls_iter().enumerate() {
+        for (index, yaml_value) in self.get_yamls_iter().iter().enumerate() {
             let json_bytes = serde_json::to_vec(&yaml_value)?;
 
             if index != 0 {
@@ -162,11 +162,29 @@ impl App {
         Ok(())
     }
 
-    fn get_yamls_iter(&self) -> impl Iterator<Item = Value> + '_ {
-        self.files
-            .iter()
-            .flat_map(|path| convert_to_yaml(path))
-            .flatten()
+    fn get_yamls_iter(&self) -> Vec<Value> {
+        if let Some(files) = &self.files {
+            return files
+                .iter()
+                .flat_map(|path| convert_to_yaml(path))
+                .flatten()
+                .collect();
+        } else {
+            let mut yamls = Vec::new();
+
+            // if no files provided, read from stdin
+            let mut yaml_string = String::new();
+            let mut stdin = std::io::stdin(); // We get `Stdin` here.
+            stdin.read_to_string(&mut yaml_string).unwrap();
+
+            for yaml_str in yaml_string.split("---") {
+                if let Ok(yaml) = serde_yaml::from_str(yaml_str) {
+                    yamls.push(yaml)
+                }
+            }
+
+            yamls
+        }
     }
 }
 
@@ -199,26 +217,28 @@ fn get_write_mode(args: &CliArgs) -> WriteMode {
     }
 }
 
-fn get_all_files(args: &CliArgs) -> Vec<PathBuf> {
-    let files = &args.files;
+fn get_all_files(args: &CliArgs) -> Option<Vec<PathBuf>> {
+    let files = args.files.as_ref()?;
 
-    files
-        .iter()
-        .map(|path| Path::new(path).to_owned())
-        .flat_map(|starting_path| {
-            WalkBuilder::new(starting_path)
-                .max_depth(Some(args.depth))
-                .build()
-                .filter_map(Result::ok)
-                .filter(|f| f.path().is_file())
-                .filter(|f| {
-                    matches!(
-                        f.path().extension().and_then(|path| path.to_str()),
-                        Some("yaml" | "json")
-                    )
-                })
-                .map(|file| file.path().to_owned())
-        })
-        .unique()
-        .collect()
+    Some(
+        files
+            .iter()
+            .map(|path| Path::new(path).to_owned())
+            .flat_map(|starting_path| {
+                WalkBuilder::new(starting_path)
+                    .max_depth(Some(args.depth))
+                    .build()
+                    .filter_map(Result::ok)
+                    .filter(|f| f.path().is_file())
+                    .filter(|f| {
+                        matches!(
+                            f.path().extension().and_then(|path| path.to_str()),
+                            Some("yaml" | "json")
+                        )
+                    })
+                    .map(|file| file.path().to_owned())
+            })
+            .unique()
+            .collect(),
+    )
 }
