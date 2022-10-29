@@ -51,7 +51,7 @@ Options:
 - Output the combined file to STDOUT in json-array format:
   - `yamine --stdout -f json-array .`
 - Convert YAML from stdin and output as JSON to stdout
-  - pbpaste | yamine --stdin --stdout -f json
+  - `pbpaste | yamine --stdin --stdout -f json`
 
 ## Formats
 
