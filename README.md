@@ -37,9 +37,9 @@ Options:
       --dry-run          Default mode
   -w, --write            Write new output file
   -s, --stdout           Outputs combined file contents to STDOUT
-  -f, --format <FORMAT>  The format for the output file, defaults to yaml, options are: 'yaml', 'json-array', 'k8s-json' [default: yaml]
-  -h, --help             Print help information
-  -V, --version          Print version information
+  -f, --format <FORMAT>  The format for the output file, defaults to yaml [default: yaml] [possible values: yaml, json-array, json-k8s, json]
+  -h, --help             Print help
+  -V, --version          Print version
 ```
 
 ## Examples
@@ -48,8 +48,8 @@ Options:
   - `yamine -w .`
 - Combine all yaml and json files in the current folder and creates a `combined.json` file in `json-k8s` format:
   - `yamine --write --format json-k8s --output combined.json .`
-- Output the combined file to STDOUT in json-array format:
-  - `yamine --stdout -f json-array .`
+- Output the combined file to STDOUT in json format:
+  - `yamine --stdout -f json .`
 - Convert YAML from stdin and output as JSON to stdout
   - `pbpaste | yamine --stdin --stdout -f json`
 
@@ -77,7 +77,7 @@ Options:
   kind: Deployment
   ```
 
-- `json-array` - a json file with each combined file being an element in the array
+- `json` - a json file with each combined file being an element in the array
 
   ```json
   [
