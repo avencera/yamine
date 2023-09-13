@@ -144,7 +144,7 @@ impl App {
         output.write_all(&json_bytes)?;
         output.flush()?;
 
-        return Ok(());
+        Ok(())
     }
 
     fn write_to_json_array<T: Write>(&self, mut output: T) -> Result<()> {
@@ -167,7 +167,7 @@ impl App {
     }
 
     fn write_to_json_kubernetes<T: Write>(&self, mut output: T) -> Result<()> {
-        output.write_all(br##"{"kind": "List", "apiVersion": "v1", "items": ["##)?;
+        output.write_all(br#"{"kind": "List", "apiVersion": "v1", "items": ["#)?;
 
         for (index, yaml_value) in self.get_yamls_iter().iter().enumerate() {
             let json_bytes = serde_json::to_vec(&yaml_value)?;
