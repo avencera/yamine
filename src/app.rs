@@ -4,7 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use eyre::Result;
+use eyre::{eyre, Result};
 use ignore::WalkBuilder;
 use itertools::Itertools;
 use log::debug;
@@ -19,11 +19,12 @@ enum WriteMode {
     DryRun,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, clap::ValueEnum)]
 pub enum Format {
     Yaml,
     JsonArray,
     JsonK8s,
+    Json,
 }
 
 #[derive(Debug)]
@@ -86,6 +87,7 @@ impl App {
 
             The combined file be created at: {}/{}
             The combined file will be in `{}` format
+            Flag: `--format`, Options: `yaml`, `json`, `json-array`, `json-k8s`
             
             To create the file run again in write mode using `{}` or `{}`.
             To output the file to STDOUT use `{}` or `{}`
@@ -109,6 +111,7 @@ impl App {
             Format::Yaml => self.write_to_yaml(output)?,
             Format::JsonArray => self.write_to_json_array(output)?,
             Format::JsonK8s => self.write_to_json_kubernetes(output)?,
+            Format::Json => self.write_to_json(output)?,
         }
 
         Ok(())
@@ -122,6 +125,26 @@ impl App {
         output.flush()?;
 
         Ok(())
+    }
+
+    fn write_to_json<T: Write>(&self, mut output: T) -> Result<()> {
+        let yaml_iter = self.get_yamls_iter();
+
+        // multiple yaml files, write as json array
+        if yaml_iter.len() > 1 {
+            return self.write_to_json_array(output);
+        }
+
+        // only one yaml file, write as json object
+        let yaml_value = yaml_iter.first().ok_or_else(|| {
+            eyre!("No yaml files found, please provide a yaml file or pipe in yaml")
+        })?;
+
+        let json_bytes = serde_json::to_vec(&yaml_value)?;
+        output.write_all(&json_bytes)?;
+        output.flush()?;
+
+        return Ok(());
     }
 
     fn write_to_json_array<T: Write>(&self, mut output: T) -> Result<()> {

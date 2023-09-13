@@ -13,8 +13,8 @@ color-eyre = "0.6"
 eyre = "0.6"
 
 # logging
-clap = { version = "4", features = ["cargo", "derive"] }
-env_logger = "0.9"
+clap = { version = "4.4", features = ["cargo", "derive"] }
+env_logger = "0.10"
 log = "0.4"
 
 # file system
@@ -27,7 +27,8 @@ serde_yaml = "0.9"
 
 # terminal
 colored = "2.0"
+anstyle = "1.0.3"
 
 # utils
-indoc = "1.0"
-itertools = "0.10"
+indoc = "2.0"
+itertools = "0.11"

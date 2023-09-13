@@ -1,15 +1,17 @@
 mod app;
+pub mod cli;
 
 use app::{App, Format};
 use clap::Parser;
 use eyre::Result;
 use log::{error, info};
-use std::{fmt::Display, str::FromStr};
+use std::fmt::Display;
 
 /// Combine JSON/YAML files into a single file
 #[derive(Debug, Parser)]
 #[command(author, version, about)]
 #[command(arg_required_else_help(true))]
+#[command(styles=cli::get_styles())]
 pub(crate) struct CliArgs {
     #[arg(
         name = "FILES_OR_FOLDERS",
@@ -61,7 +63,7 @@ pub(crate) struct CliArgs {
         long,
         short,
         default_value = "yaml",
-        help = "The format for the output file, defaults to yaml, options are: 'yaml', 'json-array', 'k8s-json'"
+        help = "The format for the output file, defaults to yaml"
     )]
     pub(crate) format: Format,
 }
@@ -76,24 +78,9 @@ impl Display for Format {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::Yaml => write!(f, "yaml"),
+            Self::Json => write!(f, "json"),
             Self::JsonArray => write!(f, "json-array"),
             Self::JsonK8s => write!(f, "json-k8s"),
-        }
-    }
-}
-
-impl FromStr for Format {
-    type Err = String;
-    fn from_str(string: &str) -> Result<Self, Self::Err> {
-        match string.to_lowercase().as_ref() {
-            "yaml" => Ok(Self::Yaml),
-            "json" => Ok(Self::JsonArray),
-            "json-array" => Ok(Self::JsonArray),
-            "k8s-json" => Ok(Self::JsonK8s),
-            "kubernetes-json" => Ok(Self::JsonK8s),
-            "json-k8s" => Ok(Self::JsonK8s),
-            "json-kubernetes" => Ok(Self::JsonK8s),
-            _ => Ok(Self::Yaml),
         }
     }
 }

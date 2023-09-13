@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- One yaml file output json without nesting in an array
+
+## [v0.2.0] - 2022-08-28
+
 ### Features
 
 - Can now read and convert from `STDIN`
