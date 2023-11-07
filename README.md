@@ -6,7 +6,7 @@ A simple CLI for combining json and yaml files
 
 Available via Homebrew/Linuxbrew
 
-`brew install avencera/taps/yamine`
+`brew install avencera/tap/yamine`
 
 or
 
