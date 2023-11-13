@@ -90,7 +90,7 @@ impl App {
 
             {}
 
-            The combined file be created at: {}/{}
+            The combined file be created at: {}{}{}
             The combined file will be in `{}` format
             Flag: `--format`, Options: `yaml`, `json`, `json-array`, `json-k8s`
             
@@ -100,6 +100,7 @@ impl App {
             "dry-run".blue(),
             files.white().dimmed(),
             std::env::current_dir()?.to_string_lossy().green(),
+            "/".green(),
             self.output.green(),
             self.format.to_string().green(),
             "--write".green(),
@@ -124,6 +125,7 @@ impl App {
 
     fn write_to_yaml<T: Write>(&self, mut output: T) -> Result<()> {
         for yaml_value in self.get_yamls_iter() {
+            output.write_all(b"---\n")?;
             serde_yaml::to_writer(&mut output, &yaml_value)?;
         }
 
@@ -222,7 +224,7 @@ fn convert_to_yaml(path: &Path) -> Result<Vec<Value>> {
     let mut yamls = Vec::new();
 
     match path.extension().and_then(|path| path.to_str()) {
-        Some("yaml") => {
+        Some("yaml" | "yml") => {
             let mut yaml_string = String::new();
             reader.read_to_string(&mut yaml_string)?;
 
@@ -261,7 +263,7 @@ fn get_all_files(args: &CliArgs) -> Option<Vec<PathBuf>> {
                     .filter(|f| {
                         matches!(
                             f.path().extension().and_then(|path| path.to_str()),
-                            Some("yaml" | "json" | "yml")
+                            Some("yaml" | "yml" | "json")
                         )
                     })
                     .map(|file| file.path().to_owned())
