@@ -86,7 +86,7 @@ impl Display for Format {
 }
 
 fn main() -> Result<()> {
-    env_logger::init();
+    pretty_env_logger::init();
     color_eyre::install()?;
 
     let args = CliArgs::parse();

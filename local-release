@@ -1,5 +1,5 @@
 #!/bin/bash
 
 cargo build --release;  
-rm  /usr/local/bin/yamine; 
-ln -s "$(pwd)/target/release/yamine" /usr/local/bin
+sudo rm  /usr/local/bin/yamine; 
+sudo ln -s "$(pwd)/target/release/yamine" /usr/local/bin
