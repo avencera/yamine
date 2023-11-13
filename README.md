@@ -8,17 +8,19 @@ Available via Homebrew/Linuxbrew
 
 `brew install avencera/tap/yamine`
 
-or
+OR
 
 Install from a github release:
 
 `curl -LSfs https://avencera.github.io/yamine/install.sh | sh -s -- --git avencera/yamine`
 
+OR
+
 Install using cargo:
 
-`cargo install yamine` OR `cargo binstall yamine`
+`cargo install yamine` or `cargo binstall yamine`
 
-or
+OR
 
 Download a release directly from github: [github.com/avencera/yamine/releases](https://github.com/avencera/yamine/releases)
 
