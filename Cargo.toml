@@ -33,3 +33,8 @@ anstyle = "1.0.3"
 # utils
 indoc = "2.0"
 itertools = "0.11"
+
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-v{ version }-{ target }.tar.gz"
+bin-dir = "{ bin }{ binary-ext }"
+pkg-fmt = "tgz"

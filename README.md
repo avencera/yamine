@@ -14,6 +14,10 @@ Install from a github release:
 
 `curl -LSfs https://avencera.github.io/yamine/install.sh | sh -s -- --git avencera/yamine`
 
+Install using cargo:
+
+`cargo install yamine` OR `cargo binstall yamine`
+
 or
 
 Download a release directly from github: [github.com/avencera/yamine/releases](https://github.com/avencera/yamine/releases)
