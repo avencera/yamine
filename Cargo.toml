@@ -14,7 +14,7 @@ eyre = "0.6"
 
 # logging
 clap = { version = "4.4", features = ["cargo", "derive"] }
-env_logger = "0.10"
+pretty_env_logger = "0.5"
 log = "0.4"
 
 # file system
