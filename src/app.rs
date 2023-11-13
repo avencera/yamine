@@ -76,6 +76,11 @@ impl App {
             .map(|path| format!("  * {}", path.to_string_lossy()))
             .join("\n");
 
+        if files.is_empty() {
+            println!("{}", "No files found to combine".red());
+            std::process::exit(124)
+        }
+
         indoc::printdoc!(
             r###"
 
@@ -256,7 +261,7 @@ fn get_all_files(args: &CliArgs) -> Option<Vec<PathBuf>> {
                     .filter(|f| {
                         matches!(
                             f.path().extension().and_then(|path| path.to_str()),
-                            Some("yaml" | "json")
+                            Some("yaml" | "json" | "yml")
                         )
                     })
                     .map(|file| file.path().to_owned())
