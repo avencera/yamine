@@ -3,8 +3,10 @@ authors = ["Praveen Perera <praveen@avencera.com>"]
 edition = "2021"
 description = "A simple CLI for combining json and yaml files"
 name = "yamine"
+homepage = "https://github.com/avencera/yamine"
+repository = "https://github.com/avencera/yamine"
 license = "Apache-2.0"
-version = "0.4.1"
+version = "0.4.2"
 
 [package.metadata.binstall]
 pkg-url = "{ repo }/releases/download/v{ version }/{ name }-v{ version }-{ target }.tar.gz"

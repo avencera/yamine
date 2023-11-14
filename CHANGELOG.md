@@ -2,10 +2,6 @@
 
 ## [Unreleased]
 
-## [v0.4.1] - 2023-11-14
-
-- Added cargo binstall pkg directives
-
 ## [v0.4.0] - 2023-11-13
 
 - One yaml file output json without nesting in an array
