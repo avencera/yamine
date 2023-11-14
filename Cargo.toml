@@ -4,7 +4,12 @@ edition = "2021"
 description = "A simple CLI for combining json and yaml files"
 name = "yamine"
 license = "Apache-2.0"
-version = "0.4.0"
+version = "0.4.1"
+
+[package.metadata.binstall]
+pkg-url = "{ repo }/releases/download/v{ version }/{ name }-v{ version }-{ target }.tar.gz"
+bin-dir = "{ bin }{ binary-ext }"
+pkg-fmt = "tgz"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -33,8 +38,3 @@ anstyle = "1.0.3"
 # utils
 indoc = "2.0"
 itertools = "0.11"
-
-[package.metadata.binstall]
-pkg-url = "{ repo }/releases/download/v{ version }/{ name }-v{ version }-{ target }.tar.gz"
-bin-dir = "{ bin }{ binary-ext }"
-pkg-fmt = "tgz"
