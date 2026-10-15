@@ -3,16 +3,14 @@ name: rustfmt
 on: [push, pull_request]
 jobs:
   rustfmt:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v2
+        uses: actions/checkout@v7
 
       - name: Install stable toolchain with rustfmt available
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          override: true
           components: rustfmt
 
       - run: rustfmt --edition 2018 **/*.rs --check
