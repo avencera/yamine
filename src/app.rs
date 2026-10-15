@@ -19,8 +19,9 @@ enum WriteMode {
     DryRun,
 }
 
-#[derive(Debug, Clone, clap::ValueEnum)]
+#[derive(Debug, Clone, Default, clap::ValueEnum)]
 pub enum Format {
+    #[default]
     Yaml,
     JsonArray,
     JsonK8s,
@@ -194,11 +195,11 @@ impl App {
 
     fn get_yamls_iter(&self) -> Vec<Value> {
         if let Some(files) = &self.files {
-            return files
+            files
                 .iter()
                 .flat_map(|path| convert_to_yaml(path))
                 .flatten()
-                .collect();
+                .collect()
         } else {
             let mut yamls = Vec::new();
 

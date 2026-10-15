@@ -68,12 +68,6 @@ pub(crate) struct CliArgs {
     pub(crate) format: Format,
 }
 
-impl Default for Format {
-    fn default() -> Self {
-        Self::Yaml
-    }
-}
-
 impl Display for Format {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
